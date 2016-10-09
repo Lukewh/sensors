@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sensors</title>
+    </head>
+    <body>
+        <div>Tilt Front / Back</div>
+        <div id="tiltFB"></div>
+        <div>Tilt Left / Right</div>
+        <div id="tiltLR"></div>
+        <div>Direction</div>
+        <div id="dir"></div>
+        <div>Location</div>
+        <div id="lat"></div>
+        <div id="lon"></div>
+        <script>
+            if (window.DeviceOrientationEvent) {
+                var timeout = false,
+                    tiltLR = 0,
+                    tiltFB = 0,
+                    dir = 0,
+                    pos;
+                
+                function getPosition(callback) {
+                    var lat = 0,
+                        lon = 0;
+                    
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(location) {
+                            callback({
+                                lat: location.coords.latitude,
+                                lon: location.coords.longitude
+                            });
+                        }, function (error) {
+                            console.log(error);
+                        });
+                    }
+                }
+                
+                function update() {
+                    if (timeout) {
+                       clearTimeout(timeout);  
+                    }
+                    
+                    getPosition(function (pos) {
+                    
+                        document.getElementById('tiltFB').innerHTML = Math.round(tiltFB);
+                        document.getElementById('tiltLR').innerHTML = Math.round(tiltLR);
+                        document.getElementById('dir').innerHTML = Math.round(dir);
+                        document.getElementById('lat').innerHTML = pos.lat;
+                        document.getElementById('lon').innerHTML = pos.lon;
+
+                        timeout = setTimeout(update, 500);
+                    });
+                }
+                
+                update();
+                // Listen for the event and handle DeviceOrientationEvent object
+                window.addEventListener('deviceorientation', function(eventData) {
+                    tiltLR = eventData.gamma;
+                    tiltFB = eventData.beta;
+                    dir = eventData.alpha;
+                }, false);
+            }
+        </script>
+    </body>
+</html>
